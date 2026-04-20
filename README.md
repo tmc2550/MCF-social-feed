@@ -169,11 +169,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--sand); color: var(-
     <button class="filter-btn issue-future" data-issue="future" onclick="setIssue('future',this)">Future Generations</button>
   </div>
 
-  <div class="toolbar-divider"></div>
-  <div class="filter-group">
-    <button class="filter-btn active" data-show="all" onclick="setShow('all',this)">All grantees</button>
-    <button class="filter-btn" data-show="handled" onclick="setShow('handled',this)">Has handle</button>
-  </div>
+
 </div>
 
 <div class="feed-grid">
@@ -302,9 +298,8 @@ const POST_DATA = /*POST_DATA*/{};
 const LOC_LABELS   = { alaska:"Alaska", colorado:"Colorado", newmexico:"New Mexico", newyork:"New York", nc:"North Carolina", bahamas:"Bahamas", panama:"Panama" };
 const ISSUE_LABELS = { land:"Land & Forest", water:"Clean Water", ocean:"Healthy Oceans", future:"Future Generations" };
 
-let showMode='all', activeLoc='all', activeIssue='all';
+let activeLoc='all', activeIssue='all';
 
-function setShow(v,el)  { showMode=v;    document.querySelectorAll('[data-show]').forEach(b=>b.classList.remove('active')); el.classList.add('active'); render(); }
 function setLoc(v,el)   { activeLoc=v;   document.querySelectorAll('[data-loc]').forEach(b=>b.classList.remove('active'));  el.classList.add('active'); render(); }
 function setIssue(v,el) { activeIssue=v; document.querySelectorAll('[data-issue]').forEach(b=>b.classList.remove('active')); el.classList.add('active'); render(); }
 
@@ -324,10 +319,7 @@ function cardHtml(g,platform){
   else if(platform==='tw'){handle=g.tw;url=handle?twUrl(handle):'';cls='twitter';postKey=`tw_${handle}`;}
   else{handle=g.fb_handle;url=g.fb_url;cls='facebook';postKey=`fb_${handle}`;}
 
-  if(!handle&&!url){
-    if(showMode==='handled')return'';
-    return`<div class="org-card no-handle"><div class="card-top"><span class="org-name">${g.name}</span><span class="no-handle-label">No handle</span></div>${tagsHtml(g)}</div>`;
-  }
+  if(!handle&&!url){ return''; }
   const post=POST_DATA[postKey];
   const disp=platform==='fb'?handle:`@${handle}`;
   let ps=`<div class="post-preview">No post data yet — run a sweep to populate.</div>`;
@@ -345,17 +337,9 @@ function render(){
   });
   let igHtml='',twHtml='',fbHtml='',igCount=0,twCount=0,fbCount=0;
   filtered.forEach(g=>{
-    if(showMode==='handled'){
-      if(g.ig){igHtml+=cardHtml(g,'ig');igCount++;}
-      if(g.tw){twHtml+=cardHtml(g,'tw');twCount++;}
-      if(g.fb_handle||g.fb_url){fbHtml+=cardHtml(g,'fb');fbCount++;}
-    }else{
-      igHtml+=cardHtml(g,'ig');
-      if(g.tw){twHtml+=cardHtml(g,'tw');twCount++;}
-      fbHtml+=cardHtml(g,'fb');
-      if(g.ig)igCount++;
-      if(g.fb_handle||g.fb_url)fbCount++;
-    }
+    if(g.ig){igHtml+=cardHtml(g,'ig');igCount++;}
+    if(g.tw){twHtml+=cardHtml(g,'tw');twCount++;}
+    if(g.fb_handle||g.fb_url){fbHtml+=cardHtml(g,'fb');fbCount++;}
   });
   document.getElementById('col-ig').innerHTML=igHtml||'<div class="empty-col">No results</div>';
   document.getElementById('col-tw').innerHTML=twHtml||'<div class="empty-col">No results</div>';
